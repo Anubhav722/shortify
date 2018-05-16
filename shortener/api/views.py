@@ -2,17 +2,18 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic import ListView
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django.views.generic.edit import FormView
 
 from rest_framework import viewsets, mixins, generics, status
-from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from shortener.settings import SITE_URL
 from api.serializers import UrlSerializer, ShortUrlSerializer
 from api.models import Url
+from api.forms import UrlForm
 
 # Create your views here.
 
@@ -73,3 +74,15 @@ def url_redirect(request, short_id):
     """
     url = get_object_or_404(Url, id=short_id)
     return HttpResponseRedirect(url.original_url)
+
+
+class UrlFormView(FormView):
+    template_name = 'urlform.html'
+    form_class = UrlForm
+
+    def form_valid(self, form):
+        url = form.cleaned_data.get('url')
+        url_instance = Url.objects.create(original_url=url)
+        return HttpResponse('Short Url for {} is: {}'.format(
+                            url_instance.original_url,
+                            url_instance.get_short_url()))

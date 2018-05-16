@@ -9,6 +9,9 @@ import random
 import string
 
 from shortener.settings import SITE_URL
+
+from urlparse import urlparse, urljoin
+
 # Create your models here.
 
 SHORT_CODE_LENGTH = 6
@@ -16,7 +19,7 @@ SHORT_CODE_LENGTH = 6
 
 class Url(models.Model):
     original_url = models.URLField()
-    short_code = models.CharField(max_length=6, unique=True)
+    short_code = models.CharField(max_length=6)
 
     def __unicode__(self):
         return self.original_url
@@ -27,7 +30,18 @@ class Url(models.Model):
 
 @receiver(pre_save, sender=Url)
 def url_pre_save_callback(sender, instance, *args, **kwargs):
-    if not instance.short_code:
+    remaining_url = None
+    parsed_url = urlparse(instance.original_url)
+    netloc = parsed_url.netloc
+    if 'www.' in netloc:
+        netloc = netloc.split('www.')[1]
+    if len(instance.original_url.split(netloc)) > 2:
+        remaining_url = instance.original_url.split(netloc)[3]
+    instance.original_url = 'https://' + netloc
+    if remaining_url:
+        instance.original_url = instance.original_url + remaining_url
+
+    if not instance.short_code and not Url.objects.filter(original_url=instance.original_url).exists():
         while True:
             short = ''.join(random.SystemRandom().choice(
                             string.ascii_uppercase +
@@ -36,4 +50,7 @@ def url_pre_save_callback(sender, instance, *args, **kwargs):
                             for _ in xrange(SHORT_CODE_LENGTH))
             if not Url.objects.filter(short_code=short).exists():
                 break
-        instance.short_code = short
+    else:
+        url = Url.objects.filter(original_url=instance.original_url).first()
+        short = url.short_code
+    instance.short_code = short
