@@ -1,5 +1,8 @@
 # shortify
 
+## Question 1 Solution:
+https://github.com/Anubhav722/shortify/blob/master/question_1.py
+
 ## Endpoints available
 
 API ENDPOINTS
