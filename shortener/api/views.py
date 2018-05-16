@@ -94,14 +94,9 @@ class UrlFormView(FormView):
 class BulkUploadView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
-        import ipdb; ipdb.set_trace()
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            # get_file = request.FILES['file']
             paramFile = request.FILES['file'].read()
-            # portfolio = csv.DictReader(paramFile)
-            # with open(get_file) as csvfile:
-            #     readcsv = csv.reader(get_file, delimiter=',')
             parse_csv.delay(paramFile)
             return Response(
                 {'status': 'Success',
