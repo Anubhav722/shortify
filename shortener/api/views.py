@@ -67,5 +67,9 @@ class UrlListView(ListView):
 
 
 def url_redirect(request, short_id):
+    """
+    Using function based view here.
+    Since only redirection is required here.
+    """
     url = get_object_or_404(Url, id=short_id)
     return HttpResponseRedirect(url.original_url)
