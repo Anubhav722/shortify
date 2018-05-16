@@ -2,7 +2,9 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views.generic import ListView
+from django.shortcuts import redirect, get_object_or_404
 
 from rest_framework import viewsets, mixins, generics, status
 from rest_framework.views import APIView
@@ -58,3 +60,12 @@ class OriginalUrlView(generics.GenericAPIView):
                 {'status': 'Failed',
                  'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST)
+
+
+class UrlListView(ListView):
+    model = Url
+
+
+def url_redirect(request, short_id):
+    url = get_object_or_404(Url, id=short_id)
+    return HttpResponseRedirect(url.original_url)

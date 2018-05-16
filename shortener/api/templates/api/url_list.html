@@ -1,0 +1,5 @@
+<h3>List of Short Urls</h3>
+
+{% for short in object_list %}
+	<li><a href="{% url 'api:redirect' short.id %}">https://xyz/{{ short.short_code }}</a></li>
+{% endfor %}
