@@ -13,7 +13,10 @@ from rest_framework.response import Response
 from shortener.settings import SITE_URL
 from api.serializers import UrlSerializer, ShortUrlSerializer
 from api.models import Url
-from api.forms import UrlForm
+from api.forms import UrlForm, UploadFileForm
+from api.tasks import parse_csv
+
+import csv
 
 # Create your views here.
 
@@ -86,3 +89,25 @@ class UrlFormView(FormView):
         return HttpResponse('Short Url for {} is: {}'.format(
                             url_instance.original_url,
                             url_instance.get_short_url()))
+
+
+class BulkUploadView(generics.GenericAPIView):
+
+    def post(self, request, *args, **kwargs):
+        import ipdb; ipdb.set_trace()
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # get_file = request.FILES['file']
+            paramFile = request.FILES['file'].read()
+            # portfolio = csv.DictReader(paramFile)
+            # with open(get_file) as csvfile:
+            #     readcsv = csv.reader(get_file, delimiter=',')
+            parse_csv.delay(paramFile)
+            return Response(
+                {'status': 'Success',
+                 'details': 'Parsing the file please check back soon'},
+                status=status.HTTP_200_OK)
+        return Response(
+            {'status': 'Failed',
+             'details': form.errors},
+            status=status.HTTP_400_BAD_REQUEST)
