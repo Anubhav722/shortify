@@ -34,8 +34,10 @@ For running django server ```./manage.py runserver```
 
 ## Running Tests
 
-Have not covered the code with tests. Idea was to cover the unique urls generator function for identical original urls.
+Have not covered the whole code with tests.
+Idea was to cover the unique urls generator function for identical original urls.
 Have omitted those tests, was running low on time.
+https://github.com/Anubhav722/shortify/blob/master/shortener/api/tests.py
 Run ```./manage.py test```
 
 # NOTE:
