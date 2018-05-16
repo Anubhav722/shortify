@@ -1,4 +1,7 @@
 def balanced_parenthesis(a):
+    """
+    a is an input string.
+    """
     s = []
 
     for i in a:
